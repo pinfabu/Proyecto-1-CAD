@@ -53,5 +53,11 @@
         asociarSenalSalidaDirecto()
         Me.Visible = True
     End Sub
+
+    Private Sub RresolverCircuitoCompletoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RresolverCircuitoCompletoToolStripMenuItem.Click
+        Me.Visible = False
+        resolverCircuito()
+        Me.Visible = True
+    End Sub
 End Class
 

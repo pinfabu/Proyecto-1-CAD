@@ -28,10 +28,11 @@ Partial Class principal
         Me.EjemplosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ResolviendoUnaCompuertaANDToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PrepararElDiccionarioDeUnaCompuertaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ResolverCompuertaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.dwgActual = New System.Windows.Forms.Label()
-        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RresolverCircuitoCompletoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -59,7 +60,7 @@ Partial Class principal
         '
         'EjemplosToolStripMenuItem
         '
-        Me.EjemplosToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ResolviendoUnaCompuertaANDToolStripMenuItem})
+        Me.EjemplosToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ResolviendoUnaCompuertaANDToolStripMenuItem, Me.RresolverCircuitoCompletoToolStripMenuItem})
         Me.EjemplosToolStripMenuItem.Name = "EjemplosToolStripMenuItem"
         Me.EjemplosToolStripMenuItem.Size = New System.Drawing.Size(128, 20)
         Me.EjemplosToolStripMenuItem.Text = "Resolviendo Circuito"
@@ -69,7 +70,7 @@ Partial Class principal
         '
         Me.ResolviendoUnaCompuertaANDToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem, Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem, Me.PrepararElDiccionarioDeUnaCompuertaToolStripMenuItem, Me.ResolverCompuertaToolStripMenuItem})
         Me.ResolviendoUnaCompuertaANDToolStripMenuItem.Name = "ResolviendoUnaCompuertaANDToolStripMenuItem"
-        Me.ResolviendoUnaCompuertaANDToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.ResolviendoUnaCompuertaANDToolStripMenuItem.Size = New System.Drawing.Size(223, 22)
         Me.ResolviendoUnaCompuertaANDToolStripMenuItem.Text = "Resolver un circuito"
         '
         'AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem
@@ -77,6 +78,12 @@ Partial Class principal
         Me.AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem.Name = "AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem"
         Me.AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem.Size = New System.Drawing.Size(359, 22)
         Me.AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem.Text = "Asociar senal a una entrada directamente sin atributos"
+        '
+        'AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem
+        '
+        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem.Name = "AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem"
+        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem.Size = New System.Drawing.Size(359, 22)
+        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem.Text = "Asociar senal a una salida directamente"
         '
         'PrepararElDiccionarioDeUnaCompuertaToolStripMenuItem
         '
@@ -99,11 +106,11 @@ Partial Class principal
         Me.dwgActual.TabIndex = 1
         Me.dwgActual.Text = "Sin conexion"
         '
-        'AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem
+        'RresolverCircuitoCompletoToolStripMenuItem
         '
-        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem.Name = "AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem"
-        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem.Size = New System.Drawing.Size(359, 22)
-        Me.AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem.Text = "Asociar senal a una salida directamente"
+        Me.RresolverCircuitoCompletoToolStripMenuItem.Name = "RresolverCircuitoCompletoToolStripMenuItem"
+        Me.RresolverCircuitoCompletoToolStripMenuItem.Size = New System.Drawing.Size(223, 22)
+        Me.RresolverCircuitoCompletoToolStripMenuItem.Text = "Rresolver Circuito Completo"
         '
         'principal
         '
@@ -132,4 +139,5 @@ Partial Class principal
     Friend WithEvents PrepararElDiccionarioDeUnaCompuertaToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ResolverCompuertaToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents RresolverCircuitoCompletoToolStripMenuItem As ToolStripMenuItem
 End Class

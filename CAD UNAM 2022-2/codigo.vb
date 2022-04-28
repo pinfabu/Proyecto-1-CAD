@@ -272,9 +272,9 @@
 
     Public Function getConjunto(ByVal indef As String) As AcadSelectionSet
         Dim conjunto As AcadSelectionSet = Nothing
-        conjunto = conjunto_vacio(DOCUMENTO, "ANALISIS")
+        conjunto = conjunto_vacio(DOCUMENTO, indef)
         If Not IsNothing(conjunto) Then
-            conjunto.SelectOnScreen()
+            conjunto.Select(AcSelect.acSelectionSetAll)
         End If
         Return conjunto
     End Function
@@ -418,7 +418,9 @@
         Dim bloque As AcadBlockReference = Nothing
         Dim entidad As AcadEntity = Nothing
         Dim nombreDeEntrada As String = Nothing
+        Dim nombreConexion As String = Nothing
         Dim senal As AcadEntity = Nothing
+        Dim idSalida As AcadEntity = Nothing
         Dim tipo As String = Nothing
         Dim p(0 To 2) As Double
 
@@ -437,7 +439,16 @@
                     'quien es la ENTRADA
                     addXdata(bloque, "ENTRADA" & "-" & nombreDeEntrada, entidad.Handle)
                 End If
+                getXdata(entidad, "CONEXION", nombreConexion)
+                'seleccionando un ID de salida
+                getEntidad(idSalida, "selecciona la salida que irá asociada a esta entrada si es que se asocia a una")
+                'Verificando la existencia de la salida, en caso de no seleccionar nada, no se escribe nada como tal
+                If Not IsNothing(idSalida) AndAlso idSalida.ObjectName = "AcDbText" Then
+                    addXdata(entidad, "CONEXION", idSalida.Handle)
+                    addXdata(bloque, "CONEXION-" & nombreConexion, entidad.Handle)
+                End If
             End If
+
         End If
     End Sub
 
@@ -477,18 +488,21 @@
             addXdata(entidad, "TIPO", "ENTRADA")
             addXdata(entidad, "NOMBRE", "A")
             addXdata(entidad, "SENAL", "")
+            addXdata(entidad, "CONEXION", "")
         End If
         getEntidad(entidad, "Selecciona entrada B")
         If Not IsNothing(entidad) AndAlso entidad.ObjectName = "AcDbLine" Then
             addXdata(entidad, "TIPO", "ENTRADA")
             addXdata(entidad, "NOMBRE", "B")
             addXdata(entidad, "SENAL", "")
+            addXdata(entidad, "CONEXION", "")
         End If
 
         getEntidad(entidad, "Selecciona salida ")
         If Not IsNothing(entidad) AndAlso entidad.ObjectName = "AcDbLine" Then
             addXdata(entidad, "TIPO", "SALIDA")
             addXdata(entidad, "SENAL", "")
+            addXdata(entidad, "ID", "")
         End If
     End Sub
 
@@ -501,8 +515,9 @@
 
         Dim bloque As AcadBlockReference = Nothing
         Dim entidad As AcadEntity = Nothing
-        Dim nombreDeEntrada As String = Nothing
+        Dim nombreDeSalida As String = Nothing
         Dim senal As AcadEntity = Nothing
+        Dim id As AcadEntity = Nothing
         Dim tipo As String = Nothing
         Dim p(0 To 2) As Double
 
@@ -520,6 +535,13 @@
                     'quien es la SALIDA
                     addXdata(bloque, "SALIDA", entidad.Handle)
                 End If
+
+                getEntidad(id, "Selecciona el id asociado a la salida")
+                If Not IsNothing(id) AndAlso id.ObjectName = "AcDbText" Then
+                    addXdata(entidad, "ID", id.Handle)
+                    addXdata(bloque, "ID_SALIDA", entidad.Handle)
+                End If
+
             End If
         End If
     End Sub
@@ -590,9 +612,86 @@
 
             senalSalida.TextString = resultado
             senalSalida.Update()
+
+
         End If
     End Sub
 
+    Public Sub resolverCircuito()
+
+        Dim Bloques As AcadSelectionSet
+        Dim eA As AcadEntity
+        Dim eB As AcadEntity
+        Dim sA As AcadEntity
+        Dim senalA As AcadEntity
+        Dim senalB As AcadEntity
+        Dim senalSalida As AcadEntity
+        Dim handleFinalText As AcadEntity
+        Dim handleFinal As String
+        Dim idFinal As String
+        Dim binA As String
+        Dim binB As String
+        Dim entradaAHandle As String
+        Dim entradaBHandle As String
+        Dim salidaHandle As String
+        Dim Id As String
+
+        Bloques = getConjunto("CIRCUITO")
+
+        For Each elemento In Bloques
+            If elemento.EntityName = "AcDbBlockReference" Then
+                Debug.Print("Entre 1")
+                salidaHandle = ""
+                entradaAHandle = ""
+                entradaBHandle = ""
+                handleFinal = ""
+
+                getXdata(elemento, "SALIDA", salidaHandle)
+                getXdata(elemento, "ENTRADA-A", entradaAHandle)
+                getXdata(elemento, "ENTRADA-B", entradaBHandle)
+                eA = DOCUMENTO.HandleToObject(entradaAHandle)
+                eB = DOCUMENTO.HandleToObject(entradaBHandle)
+                sA = DOCUMENTO.HandleToObject(salidaHandle)
+
+                getXdata(sA, "ID", handleFinal)
+
+                handleFinalText = DOCUMENTO.HandleToObject(handleFinal)
+                idFinal = handleFinalText.textstring
+                If idFinal = "Final" Then
+                    Debug.Print("Entre 2")
+                    Dim Aux As String
+                    Dim Aux2 As String
+                    Dim handleSenal As String
+                    Dim handleSenal2 As String
+                    getXdata(eA, "CONEXION", Aux)
+                    getXdata(eB, "CONEXION", Aux2)
+                    getXdata(eA, "SENAL", handleSenal)
+                    getXdata(eB, "SENAL", handleSenal2)
+
+                    senalA = DOCUMENTO.HandleToObject(handleSenal)
+                    senalB = DOCUMENTO.HandleToObject(handleSenal2)
+
+                    binA = senalA.textstring
+                    binB = senalB.textstring
+
+                    If Aux <> "" AndAlso Aux2 <> "" AndAlso binA = "" AndAlso binB = "" Then
+                        Debug.Print("Entré prmer caso")
+                    ElseIf Aux = "" AndAlso Aux2 <> "" AndAlso binA <> "" AndAlso binB = "" Then
+                        Debug.Print("Entré segundo caso")
+                    ElseIf Aux <> "" AndAlso Aux2 = "" AndAlso binA = "" AndAlso binB <> "" Then
+                        Debug.Print("Entré tercer caso")
+                    ElseIf Aux = "" AndAlso Aux2 = "" AndAlso binA <> "" AndAlso binB <> "" Then
+                        Debug.Print("Entré cuarto caso")
+
+                    End If
+                End If
+
+
+            End If
+        Next
+
+
+    End Sub
     Public Function OperacionAND(binarioA As String, binarioB As String, resultado As String) As String
 
         Dim combinacion As String

@@ -59,5 +59,11 @@
         resolverCircuito()
         Me.Visible = True
     End Sub
+
+    Private Sub ReiniciarSalidasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ReiniciarSalidasToolStripMenuItem.Click
+        Me.Visible = False
+        reiniciaSalidas()
+        Me.Visible = True
+    End Sub
 End Class
 

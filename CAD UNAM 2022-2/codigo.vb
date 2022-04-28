@@ -366,17 +366,23 @@
         End If
     End Sub
 
-    Public Sub ResolverCompuertaIntermedia()
+    Public Function IdentificaCompuerta(entidad As Object)
+        If InStr(entidad.Name, "AND") Then
+            Return "AND"
+        ElseIf InStr(entidad.Name, "OR") Then
+            Return "OR"
+        End If
+        Return ""
+    End Function
 
-    End Sub
-
-    Public Function getSalidaCorrespondiente(id As String) As AcadEntity
+    Public Function getSalidaCorrespondiente(id As String) As List(Of Object)
         Dim Bloques As AcadSelectionSet
         Dim salidaHandle As String
         Dim salidaHandleFinal As String
         Dim sA As AcadEntity
         Dim salidaHandleFinalText As AcadEntity
         Dim idFinal As String
+        Dim res As List(Of Object)
 
         Bloques = getConjunto("ANALISIS")
         For Each elemento In Bloques
@@ -385,15 +391,88 @@
                 sA = DOCUMENTO.HandleToObject(salidaHandle)
                 getXdata(sA, "ID", salidaHandleFinal)
                 salidaHandleFinalText = DOCUMENTO.HandleToObject(salidaHandleFinal)
+                idFinal = salidaHandleFinalText.TextString
 
-                If salidaHandleFinalText.textstring = id Then
-                    Return sA
+                If idFinal = id Then
+                    res.Add(idFinal)
+                    res.Add(elemento)
+                    Return res
                 End If
             End If
 
         Next
         Return Nothing
     End Function
+
+    Public Sub ResuelveCompuertas(compuerta As Object, sA As AcadEntity)
+        Dim resultado As String
+        Dim idA As String
+        Dim idB As String
+        Dim idAObject As AcadEntity
+        Dim idBObject As AcadEntity
+        Dim handEntradaA As String
+        Dim handEntradaB As String
+        Dim handSalida As String
+        Dim eA As AcadEntity
+        Dim eB As AcadEntity
+        Dim handSenalA As String
+        Dim handSenalB As String
+        Dim handSenalSalida As String
+        Dim senalA As AcadEntity
+        Dim senalB As AcadEntity
+        Dim senalSalida As AcadEntity
+        Dim binarioA As String
+        Dim binarioB As String
+
+        getXdata(compuerta, "ENTRADA-A", handEntradaA)
+        getXdata(compuerta, "ENTRADA-B", handEntradaB)
+
+        eA = DOCUMENTO.HandleToObject(handEntradaA)
+        eB = DOCUMENTO.HandleToObject(handEntradaB)
+
+
+        getXdata(eA, "CONEXION", idA)
+        getXdata(eB, "CONEXION", idB)
+
+        idAObject = DOCUMENTO.HandleToObject(idA)
+        idBObject = DOCUMENTO.HandleToObject(idB)
+
+        If idAObject.TextString = "" AndAlso idBObject.TextString = "" Then
+
+            getXdata(eA, "SENAL", handSenalA)
+            getXdata(eB, "SENAL", handSenalB)
+            getXdata(sA, "SENAL", handSenalSalida)
+
+            senalA = DOCUMENTO.HandleToObject(handSenalA)
+            senalB = DOCUMENTO.HandleToObject(handSenalB)
+            senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
+
+            binarioA = senalA.textstring
+            binarioB = senalB.textstring
+            igualaTamañoSenal(binarioA, binarioB)
+
+            If IdentificaCompuerta(compuerta) = "AND" Then
+                resultado = OperacionAND(binarioA, binarioB, resultado)
+            ElseIf IdentificaCompuerta(compuerta) = "OR" Then
+                resultado = OperacionOR(binarioA, binarioB, resultado)
+            End If
+            senalSalida.TextString = resultado
+            senalSalida.Update()
+
+        ElseIf idAObject.TextString <> "" AndAlso idBObject.TextString = "" Then
+            Dim listaRes As List(Of Object)
+            Dim handleSalida As AcadEntity
+            Dim compuertaRecu As Object
+
+            listaRes = getSalidaCorrespondiente(idAObject.TextString)
+
+
+        ElseIf idAObject.TextString = "" AndAlso idBObject.TextString <> "" Then
+
+        ElseIf idAObject.TextString <> "" AndAlso idBObject.TextString <> "" Then
+
+        End If
+    End Sub
 
     Public Sub resolverCircuito()
 
@@ -415,6 +494,9 @@
         Dim Id As String
         Dim operador1Handle As AcadEntity
         Dim operador2Handle As AcadEntity
+        Dim resultado As String
+        Dim salidaHandleTexto As String
+        Dim TextoSalida As AcadEntity
 
         Bloques = getConjunto("CIRCUITO")
 
@@ -436,8 +518,8 @@
                 handleFinal = Nothing
 
                 getXdata(sA, "ID", handleFinal)
-
-
+                getXdata(sA, "SENAL", salidaHandleTexto)
+                TextoSalida = DOCUMENTO.HandleToObject(salidaHandleTexto)
 
                 handleFinalText = DOCUMENTO.HandleToObject(handleFinal)
                 idFinal = handleFinalText.textstring
@@ -447,6 +529,13 @@
                     Dim Aux2 As String
                     Dim handleSenal As String
                     Dim handleSenal2 As String
+                    Dim AuxFinal As AcadEntity
+                    Dim AuxFinal2 As AcadEntity
+                    Dim senalSalidaAux As String
+                    Dim senalSalidaAuxFinal As AcadEntity
+                    Dim senalSalidaAuxFinalText As String
+                    Dim compuerta As String
+
                     getXdata(eA, "CONEXION", Aux)
                     getXdata(eB, "CONEXION", Aux2)
                     getXdata(eA, "SENAL", handleSenal)
@@ -455,6 +544,17 @@
                     senalA = DOCUMENTO.HandleToObject(handleSenal)
                     senalB = DOCUMENTO.HandleToObject(handleSenal2)
 
+                    If Aux <> "" AndAlso Aux2 = "" Then
+                        AuxFinal = DOCUMENTO.HandleToObject(Aux)
+                    ElseIf Aux = "" AndAlso Aux2 <> "" Then
+                        AuxFinal2 = DOCUMENTO.HandleToObject(Aux2)
+                    Else
+                        AuxFinal = DOCUMENTO.HandleToObject(Aux)
+                        AuxFinal2 = DOCUMENTO.HandleToObject(Aux2)
+                    End If
+
+
+
                     binA = senalA.textstring
                     binB = senalB.textstring
 
@@ -462,9 +562,37 @@
                         Debug.Print("Entré prmer caso")
                     ElseIf Aux = "" AndAlso Aux2 <> "" AndAlso binA <> "" AndAlso binB = "???" Then
                         Debug.Print("Entré segundo caso")
-                    ElseIf Aux <> "" AndAlso Aux2 = "" AndAlso binA = "???" AndAlso binB <> "" Then
-                        operador1Handle = getSalidaCorrespondiente(Aux)
-                    ElseIf Aux = "" AndAlso Aux2 = "" AndAlso binA <> "" AndAlso binB <> "" Then
+                    ElseIf Aux <> "" AndAlso Aux2 = "" AndAlso binA = "???" AndAlso binB <> "" AndAlso binB <> "???" Then
+                        Dim listaRes As List(Of Object)
+                        Dim compuertaRes As Object
+                        listaRes = getSalidaCorrespondiente(AuxFinal.TextString)
+                        operador1Handle = listaRes(0)
+                        compuertaRes = listaRes(1)
+
+                        getXdata(operador1Handle, "SENAL", senalSalidaAux)
+                        senalSalidaAuxFinal = DOCUMENTO.HandleToObject(senalSalidaAux)
+                        senalSalidaAuxFinalText = senalSalidaAuxFinal.TextString
+
+                        If senalSalidaAuxFinalText = "???" Then
+                            ResuelveCompuertas(compuertaRes, operador1Handle)
+                        Else
+
+                            binA = senalSalidaAuxFinalText
+                            igualaTamañoSenal(binA, binB)
+                            compuerta = IdentificaCompuerta(elemento)
+
+                            If compuerta = "AND" Then
+                                resultado = OperacionAND(binA, binB, resultado)
+                            ElseIf compuerta = "OR" Then
+                                resultado = OperacionOR(binA, binB, resultado)
+                            End If
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+                        End If
+
+                        resolverCompuertaSinAtributos()
+
+                    ElseIf Aux = "" AndAlso Aux2 = "" AndAlso binA <> "" AndAlso binB <> "" AndAlso binA <> "???" AndAlso binB <> "???" Then
                         resolverCompuertaSinAtributos()
                     End If
                 End If
@@ -575,6 +703,32 @@
 
     End Sub
 
+    Public Sub reiniciaSalidas()
+        Dim Bloques As AcadSelectionSet
+        Dim sA As AcadEntity
+        Dim senalSalida As AcadEntity = Nothing
+        Dim salidaHandle As String
+        Dim handSenalSalida As String
+
+        Bloques = getConjunto("ALL")
+        For Each elemento In Bloques
+            If elemento.EntityName = "AcDbBlockReference" Then
+
+                getXdata(elemento, "SALIDA", salidaHandle)
+                sA = DOCUMENTO.HandleToObject(salidaHandle)
+                getXdata(sA, "SENAL", handSenalSalida)
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
+
+                senalSalida.TextString = "???"
+                senalSalida.Update()
+
+            End If
+            senalSalida = Nothing
+            sA = Nothing
+            salidaHandle = ""
+            handSenalSalida = ""
+        Next
+    End Sub
 
     Public Function selectEntidad(mensaje As String) As AcadEntity
         'permite seleccionar una entidad y si no se selecciona nada regresa nothing

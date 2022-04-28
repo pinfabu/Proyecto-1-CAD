@@ -274,7 +274,7 @@
         Dim conjunto As AcadSelectionSet = Nothing
         conjunto = conjunto_vacio(DOCUMENTO, indef)
         If Not IsNothing(conjunto) Then
-            conjunto.Select(AcSelect.acSelectionSetAll)
+            conjunto.Select(AutocadSelect.acSelectionSetAll)
         End If
         Return conjunto
     End Function
@@ -603,19 +603,46 @@
             igualaTamañoSenal(binarioA, binarioB)
             resultado = ""
 
-            If entidad.Name = "AND" Then
+            If InStr(entidad.Name, "AND") Then
                 resultado = OperacionAND(binarioA, binarioB, resultado)
 
-            ElseIf entidad.Name = "OR" Then
+            ElseIf InStr(entidad.Name, "OR") Then
                 resultado = OperacionOR(binarioA, binarioB, resultado)
             End If
 
             senalSalida.TextString = resultado
             senalSalida.Update()
-
-
         End If
     End Sub
+
+    Public Sub ResolverCompuertaIntermedia()
+
+    End Sub
+
+    Public Function getSalidaCorrespondiente(id As String) As AcadEntity
+        Dim Bloques As AcadSelectionSet
+        Dim salidaHandle As String
+        Dim salidaHandleFinal As String
+        Dim sA As AcadEntity
+        Dim salidaHandleFinalText As AcadEntity
+        Dim idFinal As String
+
+        Bloques = getConjunto("ANALISIS")
+        For Each elemento In Bloques
+            If elemento.EntityName = "AcDbBlockReference" Then
+                getXdata(elemento, "SALIDA", salidaHandle)
+                sA = DOCUMENTO.HandleToObject(salidaHandle)
+                getXdata(sA, "ID", salidaHandleFinal)
+                salidaHandleFinalText = DOCUMENTO.HandleToObject(salidaHandleFinal)
+
+                If salidaHandleFinalText.textstring = id Then
+                    Return sA
+                End If
+            End If
+
+        Next
+        Return Nothing
+    End Function
 
     Public Sub resolverCircuito()
 
@@ -635,12 +662,14 @@
         Dim entradaBHandle As String
         Dim salidaHandle As String
         Dim Id As String
+        Dim operador1Handle As AcadEntity
+        Dim operador2Handle As AcadEntity
 
         Bloques = getConjunto("CIRCUITO")
 
         For Each elemento In Bloques
+
             If elemento.EntityName = "AcDbBlockReference" Then
-                Debug.Print("Entre 1")
                 salidaHandle = ""
                 entradaAHandle = ""
                 entradaBHandle = ""
@@ -653,7 +682,11 @@
                 eB = DOCUMENTO.HandleToObject(entradaBHandle)
                 sA = DOCUMENTO.HandleToObject(salidaHandle)
 
+                handleFinal = Nothing
+
                 getXdata(sA, "ID", handleFinal)
+
+
 
                 handleFinalText = DOCUMENTO.HandleToObject(handleFinal)
                 idFinal = handleFinalText.textstring
@@ -674,15 +707,14 @@
                     binA = senalA.textstring
                     binB = senalB.textstring
 
-                    If Aux <> "" AndAlso Aux2 <> "" AndAlso binA = "" AndAlso binB = "" Then
+                    If Aux <> "" AndAlso Aux2 <> "" AndAlso binA = "???" AndAlso binB = "???" Then
                         Debug.Print("Entré prmer caso")
-                    ElseIf Aux = "" AndAlso Aux2 <> "" AndAlso binA <> "" AndAlso binB = "" Then
+                    ElseIf Aux = "" AndAlso Aux2 <> "" AndAlso binA <> "" AndAlso binB = "???" Then
                         Debug.Print("Entré segundo caso")
-                    ElseIf Aux <> "" AndAlso Aux2 = "" AndAlso binA = "" AndAlso binB <> "" Then
-                        Debug.Print("Entré tercer caso")
+                    ElseIf Aux <> "" AndAlso Aux2 = "" AndAlso binA = "???" AndAlso binB <> "" Then
+                        operador1Handle = getSalidaCorrespondiente(Aux)
                     ElseIf Aux = "" AndAlso Aux2 = "" AndAlso binA <> "" AndAlso binB <> "" Then
-                        Debug.Print("Entré cuarto caso")
-
+                        resolverCompuertaSinAtributos()
                     End If
                 End If
 

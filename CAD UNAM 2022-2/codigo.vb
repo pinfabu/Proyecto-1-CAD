@@ -404,6 +404,18 @@
         Return Nothing
     End Function
 
+    Public Function IdentificaCaso(compuerta As Object, binarioA As String, binarioB As String) As String
+        Dim resultado As String
+        If IdentificaCompuerta(compuerta) = "AND" Then
+            resultado = OperacionAND(binarioA, binarioB, resultado)
+        ElseIf IdentificaCompuerta(compuerta) = "OR" Then
+            resultado = OperacionOR(binarioA, binarioB, resultado)
+        End If
+
+        Return resultado
+
+    End Function
+
     Public Sub ResuelveCompuertas(compuerta As Object, sA As AcadEntity)
         Dim resultado As String
         Dim idA As String
@@ -437,6 +449,7 @@
         idAObject = DOCUMENTO.HandleToObject(idA)
         idBObject = DOCUMENTO.HandleToObject(idB)
 
+        'CASO BASE
         If idAObject.TextString = "" AndAlso idBObject.TextString = "" Then
 
             getXdata(eA, "SENAL", handSenalA)
@@ -451,11 +464,8 @@
             binarioB = senalB.textstring
             igualaTamañoSenal(binarioA, binarioB)
 
-            If IdentificaCompuerta(compuerta) = "AND" Then
-                resultado = OperacionAND(binarioA, binarioB, resultado)
-            ElseIf IdentificaCompuerta(compuerta) = "OR" Then
-                resultado = OperacionOR(binarioA, binarioB, resultado)
-            End If
+            resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+
             senalSalida.TextString = resultado
             senalSalida.Update()
 
@@ -463,15 +473,171 @@
             Dim listaRes As List(Of Object)
             Dim handleSalida As AcadEntity
             Dim compuertaRecu As Object
+            Dim AuxFinal2 As AcadEntity
+            Dim senalSalidaAux As String
+            Dim senalSalidaAuxFinal As AcadEntity
+            Dim senalSalidaAuxFinalText As String
 
             listaRes = getSalidaCorrespondiente(idAObject.TextString)
+            handleSalida = listaRes(0)
+            compuertaRecu = listaRes(1)
 
+
+            getXdata(handleSalida, "SENAL", senalSalidaAux)
+            senalSalidaAuxFinal = DOCUMENTO.HandleToObject(senalSalidaAux)
+            senalSalidaAuxFinalText = senalSalidaAuxFinal.TextString
+
+            If senalSalidaAuxFinalText = "???" Then
+                ResuelveCompuertas(compuertaRecu, handleSalida)
+                getXdata(eB, "SENAL", handSenalB)
+                getXdata(sA, "SENAL", handSenalSalida)
+                senalSalidaAuxFinal.Update()
+
+                senalB = DOCUMENTO.HandleToObject(handSenalB)
+
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalB.textstring
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+            Else
+                getXdata(eB, "SENAL", handSenalB)
+                getXdata(sA, "SENAL", handSenalSalida)
+
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalB.textstring
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+            End If
 
         ElseIf idAObject.TextString = "" AndAlso idBObject.TextString <> "" Then
+            Dim listaRes As List(Of Object)
+            Dim handleSalida As AcadEntity
+            Dim compuertaRecu As Object
+            Dim AuxFinal2 As AcadEntity
+            Dim senalSalidaAux As String
+            Dim senalSalidaAuxFinal As AcadEntity
+            Dim senalSalidaAuxFinalText As String
+
+            listaRes = getSalidaCorrespondiente(idBObject.TextString)
+            handleSalida = listaRes(0)
+            compuertaRecu = listaRes(1)
+
+
+            getXdata(handleSalida, "SENAL", senalSalidaAux)
+            senalSalidaAuxFinal = DOCUMENTO.HandleToObject(senalSalidaAux)
+            senalSalidaAuxFinalText = senalSalidaAuxFinal.TextString
+
+            If senalSalidaAuxFinalText = "???" Then
+                ResuelveCompuertas(compuertaRecu, handleSalida)
+                getXdata(eA, "SENAL", handSenalA)
+                getXdata(sA, "SENAL", handSenalSalida)
+                senalSalidaAuxFinal.Update()
+
+                senalA = DOCUMENTO.HandleToObject(handSenalA)
+
+                binarioB = senalSalidaAuxFinal.TextString
+                binarioA = senalA.textstring
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+            Else
+                getXdata(eB, "SENAL", handSenalB)
+                getXdata(sA, "SENAL", handSenalSalida)
+
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalB.textstring
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+            End If
+
 
         ElseIf idAObject.TextString <> "" AndAlso idBObject.TextString <> "" Then
+            Dim listaRes As List(Of Object)
+            Dim listaRes2 As List(Of Object)
+            Dim handleSalida As AcadEntity
+            Dim handleSalida2 As AcadEntity
+            Dim compuertaRecu As Object
+            Dim compuertaRecu2 As Object
+            Dim AuxFinal2 As AcadEntity
+            Dim senalSalidaAux As String
+            Dim senalSalidaAux2 As String
+            Dim senalSalidaAuxFinal As AcadEntity
+            Dim senalSalidaAuxFinal2 As AcadEntity
+            Dim senalSalidaAuxFinalText As String
+            Dim senalSalidaAuxFinalText2 As String
 
+            listaRes = getSalidaCorrespondiente(idAObject.TextString)
+            listaRes2 = getSalidaCorrespondiente(idBObject.TextString)
+            handleSalida = listaRes(0)
+            compuertaRecu = listaRes(1)
+            handleSalida2 = listaRes2(0)
+            compuertaRecu2 = listaRes2(1)
+
+            getXdata(handleSalida, "SENAL", senalSalidaAux)
+            getXdata(handleSalida2, "SENAL", senalSalidaAux2)
+            senalSalidaAuxFinal = DOCUMENTO.HandleToObject(senalSalidaAux)
+            senalSalidaAuxFinal2 = DOCUMENTO.HandleToObject(senalSalidaAux2)
+            senalSalidaAuxFinalText = senalSalidaAuxFinal.TextString
+            senalSalidaAuxFinalText2 = senalSalidaAuxFinal2.TextString
+
+            If senalSalidaAuxFinalText = "???" AndAlso senalSalidaAuxFinalText2 = "???" Then
+                ResuelveCompuertas(compuertaRecu, handleSalida)
+                ResuelveCompuertas(compuertaRecu2, handleSalida2)
+                getXdata(sA, "SENAL", handSenalSalida)
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalSalidaAuxFinal2.TextString
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+
+            ElseIf senalSalidaAuxFinalText = "???" AndAlso senalSalidaAuxFinalText2 <> "???" Then
+                ResuelveCompuertas(compuertaRecu, handleSalida)
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalSalidaAuxFinal2.TextString
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+
+            ElseIf senalSalidaAuxFinalText <> "???" AndAlso senalSalidaAuxFinalText2 = "???" Then
+                ResuelveCompuertas(compuertaRecu2, handleSalida2)
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalSalidaAuxFinal2.TextString
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+
+            ElseIf senalSalidaAuxFinalText <> "???" AndAlso senalSalidaAuxFinalText2 <> "???" Then
+                binarioA = senalSalidaAuxFinal.TextString
+                binarioB = senalSalidaAuxFinal2.TextString
+                igualaTamañoSenal(binarioA, binarioB)
+
+                resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+                senalSalida.TextString = resultado
+                senalSalida.Update()
+            End If
         End If
+
     End Sub
 
     Public Sub resolverCircuito()
@@ -524,7 +690,7 @@
                 handleFinalText = DOCUMENTO.HandleToObject(handleFinal)
                 idFinal = handleFinalText.textstring
                 If idFinal = "Final" Then
-                    Debug.Print("Entre 2")
+
                     Dim Aux As String
                     Dim Aux2 As String
                     Dim handleSenal As String
@@ -533,7 +699,10 @@
                     Dim AuxFinal2 As AcadEntity
                     Dim senalSalidaAux As String
                     Dim senalSalidaAuxFinal As AcadEntity
+                    Dim senalSalidaAux2 As String
+                    Dim senalSalidaAuxFinal2 As AcadEntity
                     Dim senalSalidaAuxFinalText As String
+                    Dim senalSalidaAuxFinalText2 As String
                     Dim compuerta As String
 
                     getXdata(eA, "CONEXION", Aux)
@@ -553,16 +722,103 @@
                         AuxFinal2 = DOCUMENTO.HandleToObject(Aux2)
                     End If
 
-
-
                     binA = senalA.textstring
                     binB = senalB.textstring
 
                     If Aux <> "" AndAlso Aux2 <> "" AndAlso binA = "???" AndAlso binB = "???" Then
-                        Debug.Print("Entré prmer caso")
+                        Dim listaResA As List(Of Object)
+                        Dim listaResB As List(Of Object)
+                        Dim compuertaResA As Object
+                        Dim compuertaResB As Object
+                        listaResA = getSalidaCorrespondiente(AuxFinal.TextString)
+                        operador1Handle = listaResA(0)
+                        compuertaResA = listaResA(1)
+                        listaResB = getSalidaCorrespondiente(AuxFinal2.TextString)
+                        operador2Handle = listaResB(0)
+                        compuertaResB = listaResB(1)
+
+                        getXdata(operador1Handle, "SENAL", senalSalidaAux)
+                        senalSalidaAuxFinal = DOCUMENTO.HandleToObject(senalSalidaAux)
+                        senalSalidaAuxFinalText = senalSalidaAuxFinal.TextString
+
+                        getXdata(operador2Handle, "SENAL", senalSalidaAux2)
+                        senalSalidaAuxFinal2 = DOCUMENTO.HandleToObject(senalSalidaAux2)
+                        senalSalidaAuxFinalText2 = senalSalidaAuxFinal2.TextString
+
+                        If senalSalidaAuxFinalText = "???" AndAlso senalSalidaAuxFinalText2 = "???" Then
+                            ResuelveCompuertas(compuertaResA, operador1Handle)
+                            senalSalidaAuxFinal.Update()
+                            binA = senalSalidaAuxFinal.TextString
+                            ResuelveCompuertas(compuertaResB, operador2Handle)
+                            senalSalidaAuxFinal2.Update()
+                            binB = senalSalidaAuxFinal2.TextString
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+
+                        ElseIf senalSalidaAuxFinalText = "???" Then
+                            ResuelveCompuertas(compuertaResA, operador1Handle)
+                            senalSalidaAuxFinal.Update()
+                            binA = senalSalidaAuxFinal.TextString
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+
+                        ElseIf senalSalidaAuxFinalText2 = "???" Then
+                            ResuelveCompuertas(compuertaResB, operador2Handle)
+                            senalSalidaAuxFinal2.Update()
+                            binB = senalSalidaAuxFinal2.TextString
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+                        Else
+
+                            binA = senalSalidaAuxFinalText
+                            binB = senalSalidaAuxFinalText2
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+
+                        End If
+
                     ElseIf Aux = "" AndAlso Aux2 <> "" AndAlso binA <> "" AndAlso binB = "???" Then
-                        Debug.Print("Entré segundo caso")
+
+                        Dim listaRes As List(Of Object)
+                        Dim compuertaRes As Object
+                        listaRes = getSalidaCorrespondiente(AuxFinal2.TextString)
+                        operador2Handle = listaRes(0)
+                        compuertaRes = listaRes(1)
+
+                        getXdata(operador2Handle, "SENAL", senalSalidaAux)
+                        senalSalidaAuxFinal = DOCUMENTO.HandleToObject(senalSalidaAux)
+                        senalSalidaAuxFinalText = senalSalidaAuxFinal.TextString
+
+                        If senalSalidaAuxFinalText = "???" Then
+                            ResuelveCompuertas(compuertaRes, operador2Handle)
+                            senalSalidaAuxFinal.Update()
+                            binB = senalSalidaAuxFinal.TextString
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+
+                        Else
+
+                            binB = senalSalidaAuxFinalText
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+
+                        End If
+
+
                     ElseIf Aux <> "" AndAlso Aux2 = "" AndAlso binA = "???" AndAlso binB <> "" AndAlso binB <> "???" Then
+
                         Dim listaRes As List(Of Object)
                         Dim compuertaRes As Object
                         listaRes = getSalidaCorrespondiente(AuxFinal.TextString)
@@ -575,29 +831,34 @@
 
                         If senalSalidaAuxFinalText = "???" Then
                             ResuelveCompuertas(compuertaRes, operador1Handle)
+                            senalSalidaAuxFinal.Update()
+                            binA = senalSalidaAuxFinal.TextString
+                            igualaTamañoSenal(binA, binB)
+                            resultado = IdentificaCaso(elemento, binA, binB)
+                            TextoSalida.TextString = resultado
+                            TextoSalida.Update()
+
                         Else
 
                             binA = senalSalidaAuxFinalText
                             igualaTamañoSenal(binA, binB)
-                            compuerta = IdentificaCompuerta(elemento)
-
-                            If compuerta = "AND" Then
-                                resultado = OperacionAND(binA, binB, resultado)
-                            ElseIf compuerta = "OR" Then
-                                resultado = OperacionOR(binA, binB, resultado)
-                            End If
+                            resultado = IdentificaCaso(elemento, binA, binB)
                             TextoSalida.TextString = resultado
                             TextoSalida.Update()
+
                         End If
 
-                        resolverCompuertaSinAtributos()
-
                     ElseIf Aux = "" AndAlso Aux2 = "" AndAlso binA <> "" AndAlso binB <> "" AndAlso binA <> "???" AndAlso binB <> "???" Then
-                        resolverCompuertaSinAtributos()
+
+                        binA = senalA.textstring
+                        binB = senalB.textstring
+                        igualaTamañoSenal(binA, binB)
+                        resultado = IdentificaCaso(elemento, binA, binB)
+                        TextoSalida.TextString = resultado
+                        TextoSalida.Update()
+
                     End If
                 End If
-
-
             End If
         Next
 

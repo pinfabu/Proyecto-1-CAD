@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class principal
     Inherits System.Windows.Forms.Form
 
     'Form reemplaza a Dispose para limpiar la lista de componentes.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class principal
     'NOTA: el Diseñador de Windows Forms necesita el siguiente procedimiento
     'Se puede modificar usando el Diseñador de Windows Forms.  
     'No lo modifique con el editor de código.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.ConexionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -33,7 +33,6 @@ Partial Class principal
         Me.ResolverCompuertaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RresolverCircuitoCompletoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.dwgActual = New System.Windows.Forms.Label()
-        Me.ReiniciarSalidasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -61,7 +60,7 @@ Partial Class principal
         '
         'EjemplosToolStripMenuItem
         '
-        Me.EjemplosToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ResolviendoUnaCompuertaANDToolStripMenuItem, Me.RresolverCircuitoCompletoToolStripMenuItem, Me.ReiniciarSalidasToolStripMenuItem})
+        Me.EjemplosToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ResolviendoUnaCompuertaANDToolStripMenuItem, Me.RresolverCircuitoCompletoToolStripMenuItem})
         Me.EjemplosToolStripMenuItem.Name = "EjemplosToolStripMenuItem"
         Me.EjemplosToolStripMenuItem.Size = New System.Drawing.Size(128, 20)
         Me.EjemplosToolStripMenuItem.Text = "Resolviendo Circuito"
@@ -113,12 +112,6 @@ Partial Class principal
         Me.dwgActual.TabIndex = 1
         Me.dwgActual.Text = "Sin conexion"
         '
-        'ReiniciarSalidasToolStripMenuItem
-        '
-        Me.ReiniciarSalidasToolStripMenuItem.Name = "ReiniciarSalidasToolStripMenuItem"
-        Me.ReiniciarSalidasToolStripMenuItem.Size = New System.Drawing.Size(223, 22)
-        Me.ReiniciarSalidasToolStripMenuItem.Text = "Reiniciar Salidas"
-        '
         'principal
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -147,5 +140,4 @@ Partial Class principal
     Friend WithEvents ResolverCompuertaToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents AsociarSenalAUnaSalidaDirectamenteToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents RresolverCircuitoCompletoToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ReiniciarSalidasToolStripMenuItem As ToolStripMenuItem
 End Class

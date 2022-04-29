@@ -24,12 +24,6 @@
         End If
     End Sub
 
-    Private Sub SeleccionDeUnSubelementoToolStripMenuItem_Click(sender As Object, e As EventArgs)
-        Me.Visible = False
-        seleccionDeObjetos("F")
-        Me.Visible = True
-    End Sub
-
     Private Sub AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AsociarSenalAUnaEntradaDirectamenteSinAtributosToolStripMenuItem.Click
         Me.Visible = False
         asociaSenalEntradaDirecto()
@@ -57,12 +51,6 @@
     Private Sub RresolverCircuitoCompletoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RresolverCircuitoCompletoToolStripMenuItem.Click
         Me.Visible = False
         resolverCircuito()
-        Me.Visible = True
-    End Sub
-
-    Private Sub ReiniciarSalidasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ReiniciarSalidasToolStripMenuItem.Click
-        Me.Visible = False
-        reiniciaSalidas()
         Me.Visible = True
     End Sub
 End Class

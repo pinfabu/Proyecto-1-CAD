@@ -87,83 +87,6 @@
         End Try
     End Sub
 
-    Public Sub seleccionDeObjetos(metodo As String)
-        Dim conjunto As AcadSelectionSet
-        Dim entidad As AcadEntity = Nothing
-        Dim p(0 To 2) As Double
-        Dim p1(0 To 2) As Double
-        Dim esquinas(0 To 11) As Double
-        'appActivateAutoCAD()
-        Select Case metodo
-            Case "A"
-                'Seleccion selectiva'
-                conjunto = conjunto_vacio(DOCUMENTO, "IDLE")
-                If Not IsNothing(conjunto) Then
-                    conjunto.SelectOnScreen()
-
-                End If
-            Case "D"
-                'Seleccion de un elemento'
-                Try
-                    DOCUMENTO.Utility.GetEntity(entidad, p, "Selecciona un elemento")
-                Catch ex As Exception
-
-                End Try
-            Case "B"
-                p = solicitarCoordenada("Esquina 1")
-                If Not IsNothing(p) Then
-                    p1 = solicitarCoordenada("Esquina opuesta", p)
-                    If Not IsNothing(p1) Then
-                        'cada 3 indices representan una coordenada XYZ
-                        esquinas(0) = p(0) : esquinas(1) = p(1) : esquinas(2) = 0 'coord1
-                        esquinas(3) = p1(0) : esquinas(4) = p(1) : esquinas(5) = 0 'coord2
-                        esquinas(6) = p1(0) : esquinas(7) = p1(1) : esquinas(8) = 0 'coord3
-                        esquinas(9) = p(0) : esquinas(10) = p1(1) : esquinas(11) = 0 'coord4
-                        conjunto = conjunto_vacio(DOCUMENTO, "IDLE")
-                        If Not IsNothing(conjunto) Then
-                            conjunto.SelectByPolygon(AcSelect.acSelectionSetCrossingPolygon, esquinas)
-                            MsgBox(conjunto.Count)
-                        End If
-                    End If
-                End If
-
-            Case "F"
-                Dim PickedPoint(0 To 2) As Double, TransMatrix(0 To 3, 0 To 3) As Double
-                Dim ContextData As Object = Nothing
-                Dim HasContextData As String
-                Dim Objeto As AcadObject = Nothing
-                Dim objetoAsociado As AcadObject = Nothing
-                Dim atrObj As AcadAttribute
-
-                Try
-                    DOCUMENTO.Utility.GetSubEntity(Objeto, PickedPoint, TransMatrix, ContextData)
-
-                Catch
-                    'no se selecciono un objeto
-                End Try
-                If Not IsNothing(Objeto) Then
-                    HasContextData = IIf(VarType(ContextData) = vbEmpty, "does not", "does")
-                    MsgBox("The object you chose was a:" & Objeto.ObjectName & vbCrLf &
-                           "You point of selection was: " & PickedPoint(0) & ", " &
-                                                            PickedPoint(1) & ", " &
-                                                            PickedPoint(1) & vbCrLf &
-                            "The container" & HasContextData & "have nested objects.")
-                    If Not IsNothing(ContextData) Then
-                        objetoAsociado = DOCUMENTO.ObjectIdToObject(ContextData(0))
-                        MsgBox("Objeto Asociado es " & objetoAsociado.ObjectName)
-                    End If
-                End If
-                If Not IsNothing(Objeto) AndAlso Objeto.ObjectName = "AcDbAttribute" Then
-                    MsgBox(Objeto.Handle & "Tipo= " & Objeto.tagstring & " " & Objeto.textstring)
-                    atrObj = Objeto
-                End If
-
-            Case Else
-                'Sin seleccion de metodo
-
-        End Select
-    End Sub
-
     'INICIA PROYECTO 
     Public Sub asociaSenalEntradaDirecto()
         Dim bloque As AcadBlockReference = Nothing
@@ -382,7 +305,7 @@
         Dim sA As AcadEntity
         Dim salidaHandleFinalText As AcadEntity
         Dim idFinal As String
-        Dim res As List(Of Object)
+        Dim res As New List(Of Object)
 
         Bloques = getConjunto("ANALISIS")
         For Each elemento In Bloques
@@ -394,7 +317,7 @@
                 idFinal = salidaHandleFinalText.TextString
 
                 If idFinal = id Then
-                    res.Add(idFinal)
+                    res.Add(sA)
                     res.Add(elemento)
                     Return res
                 End If
@@ -446,11 +369,25 @@
         getXdata(eA, "CONEXION", idA)
         getXdata(eB, "CONEXION", idB)
 
-        idAObject = DOCUMENTO.HandleToObject(idA)
-        idBObject = DOCUMENTO.HandleToObject(idB)
+
+        If idA <> "" AndAlso idB <> "" Then
+            idAObject = DOCUMENTO.HandleToObject(idA)
+            idBObject = DOCUMENTO.HandleToObject(idB)
+
+        ElseIf idA <> "" AndAlso idB = "" Then
+            idAObject = DOCUMENTO.HandleToObject(idA)
+
+
+        ElseIf idA = "" AndAlso idB <> "" Then
+
+            idBObject = DOCUMENTO.HandleToObject(idB)
+
+        ElseIf idA = "" AndAlso idB = "" Then
+
+        End If
 
         'CASO BASE
-        If idAObject.TextString = "" AndAlso idBObject.TextString = "" Then
+        If IsNothing(idAObject) AndAlso IsNothing(idBObject) Then
 
             getXdata(eA, "SENAL", handSenalA)
             getXdata(eB, "SENAL", handSenalB)
@@ -469,7 +406,7 @@
             senalSalida.TextString = resultado
             senalSalida.Update()
 
-        ElseIf idAObject.TextString <> "" AndAlso idBObject.TextString = "" Then
+        ElseIf Not IsNothing(idAObject) AndAlso IsNothing(idBObject) Then
             Dim listaRes As List(Of Object)
             Dim handleSalida As AcadEntity
             Dim compuertaRecu As Object
@@ -500,6 +437,7 @@
                 igualaTamañoSenal(binarioA, binarioB)
 
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
 
                 senalSalida.TextString = resultado
                 senalSalida.Update()
@@ -517,7 +455,7 @@
                 senalSalida.Update()
             End If
 
-        ElseIf idAObject.TextString = "" AndAlso idBObject.TextString <> "" Then
+        ElseIf IsNothing(idAObject) AndAlso Not IsNothing(idBObject) Then
             Dim listaRes As List(Of Object)
             Dim handleSalida As AcadEntity
             Dim compuertaRecu As Object
@@ -548,6 +486,7 @@
                 igualaTamañoSenal(binarioA, binarioB)
 
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
 
                 senalSalida.TextString = resultado
                 senalSalida.Update()
@@ -555,18 +494,21 @@
                 getXdata(eB, "SENAL", handSenalB)
                 getXdata(sA, "SENAL", handSenalSalida)
 
+                senalB = DOCUMENTO.HandleToObject(handSenalB)
+
                 binarioA = senalSalidaAuxFinal.TextString
                 binarioB = senalB.textstring
                 igualaTamañoSenal(binarioA, binarioB)
 
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
 
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
                 senalSalida.TextString = resultado
                 senalSalida.Update()
             End If
 
 
-        ElseIf idAObject.TextString <> "" AndAlso idBObject.TextString <> "" Then
+        ElseIf Not IsNothing(idAObject) AndAlso Not IsNothing(idBObject) Then
             Dim listaRes As List(Of Object)
             Dim listaRes2 As List(Of Object)
             Dim handleSalida As AcadEntity
@@ -604,6 +546,8 @@
                 igualaTamañoSenal(binarioA, binarioB)
 
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
+
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
                 senalSalida.TextString = resultado
                 senalSalida.Update()
 
@@ -613,6 +557,8 @@
                 binarioB = senalSalidaAuxFinal2.TextString
                 igualaTamañoSenal(binarioA, binarioB)
 
+                getXdata(sA, "SENAL", handSenalSalida)
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
                 senalSalida.TextString = resultado
                 senalSalida.Update()
@@ -623,6 +569,9 @@
                 binarioB = senalSalidaAuxFinal2.TextString
                 igualaTamañoSenal(binarioA, binarioB)
 
+                getXdata(sA, "SENAL", handSenalSalida)
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
+
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
                 senalSalida.TextString = resultado
                 senalSalida.Update()
@@ -631,6 +580,9 @@
                 binarioA = senalSalidaAuxFinal.TextString
                 binarioB = senalSalidaAuxFinal2.TextString
                 igualaTamañoSenal(binarioA, binarioB)
+
+                getXdata(sA, "SENAL", handSenalSalida)
+                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
 
                 resultado = IdentificaCaso(compuerta, binarioA, binarioB)
                 senalSalida.TextString = resultado
@@ -730,6 +682,7 @@
                         Dim listaResB As List(Of Object)
                         Dim compuertaResA As Object
                         Dim compuertaResB As Object
+
                         listaResA = getSalidaCorrespondiente(AuxFinal.TextString)
                         operador1Handle = listaResA(0)
                         compuertaResA = listaResA(1)
@@ -964,44 +917,5 @@
 
     End Sub
 
-    Public Sub reiniciaSalidas()
-        Dim Bloques As AcadSelectionSet
-        Dim sA As AcadEntity
-        Dim senalSalida As AcadEntity = Nothing
-        Dim salidaHandle As String
-        Dim handSenalSalida As String
-
-        Bloques = getConjunto("ALL")
-        For Each elemento In Bloques
-            If elemento.EntityName = "AcDbBlockReference" Then
-
-                getXdata(elemento, "SALIDA", salidaHandle)
-                sA = DOCUMENTO.HandleToObject(salidaHandle)
-                getXdata(sA, "SENAL", handSenalSalida)
-                senalSalida = DOCUMENTO.HandleToObject(handSenalSalida)
-
-                senalSalida.TextString = "???"
-                senalSalida.Update()
-
-            End If
-            senalSalida = Nothing
-            sA = Nothing
-            salidaHandle = ""
-            handSenalSalida = ""
-        Next
-    End Sub
-
-    Public Function selectEntidad(mensaje As String) As AcadEntity
-        'permite seleccionar una entidad y si no se selecciona nada regresa nothing
-        Dim entidad As AcadEntity
-        Dim p() As Double
-
-        Try
-            DOCUMENTO.Utility.GetEntity(entidad, p, mensaje)
-        Catch ex As Exception
-
-        End Try
-        Return entidad
-    End Function
 
 End Module
